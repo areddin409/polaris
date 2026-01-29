@@ -119,7 +119,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground select-none;
+    @apply bg-background text-foreground;
   }
 }
 
@@ -131,7 +131,8 @@
 }
 
 @theme inline {
-  --animate-cell-ripple: cell-ripple var(--duration, 200ms) ease-out none 1 var(--delay, 0ms);
+  --animate-cell-ripple: cell-ripple var(--duration, 200ms) ease-out none 1
+    var(--delay, 0ms);
 
   @keyframes cell-ripple {
     0% {
@@ -155,5 +156,5 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-border rounded-full border border-solid border-transparent bg-clip-padding;
+  @apply bg-border rounded-full border-[1px] border-solid border-transparent bg-clip-padding;
 }
