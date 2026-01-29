@@ -4,6 +4,8 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
+  "css.validate": false,
+  "css.lint.unknownAtRules": "ignore",
   "[javascript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },

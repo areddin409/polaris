@@ -155,5 +155,5 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-border rounded-full border-[1px] border-solid border-transparent bg-clip-padding;
+  @apply bg-border rounded-full border border-solid border-transparent bg-clip-padding;
 }
