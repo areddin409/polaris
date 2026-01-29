@@ -10,7 +10,7 @@ import {
   SignedOut,
   UserButton,
 } from "@clerk/nextjs";
-import { Button } from "@/components/ui/button";
+import { dark } from "@clerk/themes";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -34,7 +34,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      appearance={{
+        theme: dark,
+      }}
+    >
       <html lang="en" suppressHydrationWarning>
         <body className={`${inter.variable} ${plexMono.variable} antialiased`}>
           <ThemeProvider
@@ -47,7 +51,7 @@ export default function RootLayout({
               <SignedOut>
                 <SignInButton />
                 <SignUpButton>
-                  <Button className="rounded bg-rose-500 p-2 text-white">Sign Up</Button>
+                  <button className="rounded bg-rose-500 p-2 text-white">Sign Up</button>
                 </SignUpButton>
               </SignedOut>
               <SignedIn>
