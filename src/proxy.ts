@@ -1,6 +1,11 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-const isPublicRoute = createRouteMatcher(["/api/inngest(.*)"]);
+const isPublicRoute = createRouteMatcher([
+  "/api/inngest(.*)",
+  "/monitoring(.*)", // Sentry tunnel route
+  "/sentry-example-page(.*)", // Sentry test page
+  "/api/sentry-example-api(.*)", // Sentry test API
+]);
 
 export default clerkMiddleware(async (auth, req) => {
   if (!isPublicRoute(req)) {
