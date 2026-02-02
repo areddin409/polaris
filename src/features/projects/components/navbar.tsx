@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Poppins } from "next/font/google";
@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils";
 import { Id } from "../../../../convex/_generated/dataModel";
 import { useProject, useRenameProject } from "../hooks/use-projects";
 import { CloudCheckIcon, LoaderIcon } from "lucide-react";
-import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
+import { formatDistanceToNow } from "date-fns";
 
 const font = Poppins({
   subsets: ["latin"],
@@ -36,14 +36,22 @@ const Navbar = ({ projectId }: { projectId: Id<"projects"> }) => {
 
   const [isRenaming, setIsRenaming] = useState(false);
   const [name, setName] = useState("");
+  const renameCanceledRef = useRef(false);
 
   const handleStartRename = () => {
     if (!project) return;
     setName(project.name);
     setIsRenaming(true);
+    renameCanceledRef.current = false; // Reset cancel flag when starting rename
   };
 
   const handleSubmit = () => {
+    // Check if rename was canceled (e.g., by Escape key)
+    if (renameCanceledRef.current) {
+      renameCanceledRef.current = false; // Reset flag
+      return;
+    }
+
     setIsRenaming(false);
 
     const trimmedName = name.trim();
@@ -56,6 +64,7 @@ const Navbar = ({ projectId }: { projectId: Id<"projects"> }) => {
     if (e.key === "Enter") {
       handleSubmit();
     } else if (e.key === "Escape") {
+      renameCanceledRef.current = true; // Set cancel flag
       setIsRenaming(false);
     }
   };
