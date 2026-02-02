@@ -10,8 +10,46 @@
 
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
-import { Id, Doc } from "../../../../convex/_generated/dataModel";
+import { Id } from "../../../../convex/_generated/dataModel";
 import { useAuth } from "@clerk/nextjs";
+
+/**
+ * Use Project Hook
+ *
+ * Fetches a single project by its ID. Verifies ownership and returns the project
+ * data if it belongs to the authenticated user. Returns undefined while loading.
+ *
+ * @hook
+ * @param {Id<"projects">} projectId - The unique identifier of the project to fetch
+ * @returns {Doc<"projects"> | undefined} The project document, or undefined while loading
+ *
+ * @throws {Error} "Unauthorized" - If user is not authenticated or doesn't own the project
+ * @throws {Error} "Project not found" - If the project doesn't exist
+ *
+ * @example
+ * // In a project detail page
+ * function ProjectPage({ projectId }: { projectId: Id<"projects"> }) {
+ *   const project = useProject(projectId);
+ *
+ *   if (!project) return <Spinner />;
+ *
+ *   return (
+ *     <div>
+ *       <h1>{project.name}</h1>
+ *       <p>Last updated: {new Date(project.updatedAt).toLocaleDateString()}</p>
+ *     </div>
+ *   );
+ * }
+ *
+ * @remarks
+ * - Requires authentication and ownership verification
+ * - Returns undefined while loading (handle this in your UI)
+ * - Throws error if project doesn't exist or user doesn't own it
+ * - Useful for project detail pages and editing interfaces
+ */
+export const useProject = (projectId: Id<"projects">) => {
+  return useQuery(api.projects.getById, { id: projectId });
+};
 
 /**
  * Use Projects Hook
@@ -120,6 +158,92 @@ export const useCreateProject = () => {
           newProject,
           ...existingProjects,
         ]);
+      }
+    }
+  );
+};
+
+/**
+ * Use Rename Project Hook
+ *
+ * Returns a mutation function to rename an existing project with optimistic updates.
+ * The optimistic update immediately updates the project name in the UI before the
+ * server responds, providing instant feedback to the user.
+ *
+ * @hook
+ * @param {Id<"projects">} projectId - The unique identifier of the project to rename
+ * @returns {Function} Mutation function that accepts the new name and returns a promise
+ *
+ * @example
+ * const renameProject = useRenameProject(projectId);
+ *
+ * const handleRename = async (newName: string) => {
+ *   await renameProject({ id: projectId, name: newName });
+ *   toast.success("Project renamed successfully!");
+ * };
+ *
+ * @example
+ * // In an inline edit component
+ * function ProjectNameEditor({ projectId, currentName }: Props) {
+ *   const [name, setName] = useState(currentName);
+ *   const renameProject = useRenameProject(projectId);
+ *
+ *   const handleSave = async () => {
+ *     if (name !== currentName) {
+ *       await renameProject({ id: projectId, name });
+ *     }
+ *   };
+ *
+ *   return (
+ *     <input value={name} onChange={e => setName(e.target.value)} onBlur={handleSave} />
+ *   );
+ * }
+ *
+ * @remarks
+ * Optimistic Update Behavior:
+ * - Immediately updates the project name in both single and list queries
+ * - Updates the project's `updatedAt` timestamp optimistically
+ * - Affects both `api.projects.getById` and `api.projects.get` queries
+ * - If the server mutation fails, Convex automatically rolls back all optimistic updates
+ * - Once server responds, replaces optimistic data with actual server values
+ *
+ * Performance Notes:
+ * - Updates multiple cache entries to keep UI consistent
+ * - Prevents UI flicker during rename operations
+ * - Works seamlessly with React's concurrent rendering
+ */
+export const useRenameProject = (projectId: Id<"projects">) => {
+  return useMutation(api.projects.renameProject).withOptimisticUpdate(
+    (localStore, args) => {
+      // Update the single project query optimistically
+      const existingProject = localStore.getQuery(api.projects.getById, {
+        id: projectId,
+      });
+
+      if (existingProject !== undefined && existingProject !== null) {
+        localStore.setQuery(
+          api.projects.getById,
+          { id: projectId },
+          {
+            ...existingProject,
+            name: args.name,
+            updatedAt: Date.now(), // Update timestamp optimistically
+          }
+        );
+      }
+
+      // Update the projects list query optimistically
+      const existingProjects = localStore.getQuery(api.projects.get);
+      if (existingProjects !== undefined) {
+        localStore.setQuery(
+          api.projects.get,
+          {},
+          existingProjects.map((project) =>
+            project._id === projectId
+              ? { ...project, name: args.name, updatedAt: Date.now() }
+              : project
+          )
+        );
       }
     }
   );

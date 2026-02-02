@@ -107,7 +107,7 @@ export const ProjectsView = () => {
         // ⌘K: Toggle command dialog
         if (key === "k") {
           e.preventDefault(); // Prevent browser's default behavior
-          setCommandDialogOpen((prev) => !prev);
+          setCommandDialogOpen(prev => !prev);
         }
       }
     };
