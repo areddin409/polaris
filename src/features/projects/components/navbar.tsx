@@ -121,7 +121,7 @@ const Navbar = ({ projectId }: { projectId: Id<"projects"> }) => {
               Saved{" "}
               {project?.updatedAt
                 ? formatDistanceToNow(project.updatedAt, { addSuffix: true })
-                : "unknown"}
+                : "Loading..."}
             </TooltipContent>
           </Tooltip>
         )}
