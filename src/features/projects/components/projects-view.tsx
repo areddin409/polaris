@@ -107,7 +107,7 @@ export const ProjectsView = () => {
         // ⌘K: Toggle command dialog
         if (key === "k") {
           e.preventDefault(); // Prevent browser's default behavior
-          setCommandDialogOpen(!commandDialogOpen);
+          setCommandDialogOpen((prev) => !prev);
         }
       }
     };
@@ -119,7 +119,7 @@ export const ProjectsView = () => {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [createProject, commandDialogOpen]);
+  }, [createProject]);
 
   return (
     <>
