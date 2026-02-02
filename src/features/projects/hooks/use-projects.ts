@@ -212,18 +212,18 @@ export const useCreateProject = () => {
  * - Prevents UI flicker during rename operations
  * - Works seamlessly with React's concurrent rendering
  */
-export const useRenameProject = (projectId: Id<"projects">) => {
+export const useRenameProject = () => {
   return useMutation(api.projects.renameProject).withOptimisticUpdate(
     (localStore, args) => {
       // Update the single project query optimistically
       const existingProject = localStore.getQuery(api.projects.getById, {
-        id: projectId,
+        id: args.id,
       });
 
       if (existingProject !== undefined && existingProject !== null) {
         localStore.setQuery(
           api.projects.getById,
-          { id: projectId },
+          { id: args.id },
           {
             ...existingProject,
             name: args.name,
@@ -239,7 +239,7 @@ export const useRenameProject = (projectId: Id<"projects">) => {
           api.projects.get,
           {},
           existingProjects.map((project) =>
-            project._id === projectId
+            project._id === args.id
               ? { ...project, name: args.name, updatedAt: Date.now() }
               : project
           )
