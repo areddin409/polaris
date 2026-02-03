@@ -89,7 +89,6 @@ export const FileExplorer = ({ projectId }: { projectId: Id<"projects"> }) => {
    * - Resets creation state after completion
    */
   const handleCreate = (name: string) => {
-    console.log("Creating: ", name);
     setCreating(null);
     setCreatingInFolderId(undefined);
 

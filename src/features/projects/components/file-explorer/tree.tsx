@@ -187,7 +187,7 @@ export const Tree = ({
   const folderName = item.name;
   const folderRender = (
     <>
-      <div className="gap-.5 flex items-center">
+      <div className="flex items-center gap-0.5">
         <ChevronRightIcon
           className={cn(
             "text-muted-foreground size-4 shrink-0 transition-transform duration-100 ease-in-out",

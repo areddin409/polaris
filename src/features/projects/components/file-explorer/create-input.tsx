@@ -31,7 +31,7 @@ export const CreateInput = ({
       className="bg-accent/30 flex h-6 w-full items-center gap-1"
       style={{ paddingLeft: getItemPadding(level, type === "file") }}
     >
-      <div className="gap-.5 flex items-center">
+      <div className="flex items-center gap-0.5">
         {type === "folder" && (
           <ChevronRightIcon className="text-muted-foreground size-4 shrink-0" />
         )}
