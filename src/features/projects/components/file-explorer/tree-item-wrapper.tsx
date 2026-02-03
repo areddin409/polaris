@@ -58,41 +58,41 @@ export const TreeItemWrapper = ({
   onDelete?: () => void;
   onCreateFile?: () => void;
   onCreateFolder?: () => void;
-/**
- * Tree Item Wrapper
- *
- * Wraps a tree item with context menu and interactive behavior. Provides a consistent
- * interface for file and folder actions including rename, delete, and create operations.
- *
- * @component
- * @param {TreeItemWrapperProps} props - Component props
- * @returns {JSX.Element} Interactive button with context menu wrapper
- *
- * @example
- * <TreeItemWrapper
- *   item={fileDoc}
- *   level={1}
- *   isActive={selectedId === fileDoc._id}
- *   onClick={() => handleSelect(fileDoc._id)}
- *   onRename={() => setRenaming(true)}
- *   onDelete={() => handleDelete(fileDoc._id)}
- * >
- *   <FileIcon fileName={fileDoc.name} />
- *   <span>{fileDoc.name}</span>
- * </TreeItemWrapper>
- *
- * @remarks
- * Features:
- * - Right-click context menu with actions (rename, delete, create)
- * - Keyboard shortcut: Enter to rename
- * - Dynamic padding based on tree level and item type
- * - Visual feedback on hover and active states
- * - Folders show additional "New File/Folder" options in context menu
- *
- * Keyboard Shortcuts:
- * - `Enter` - Initiate rename
- * - `⌘Backspace` - Delete item
- */
+  /**
+   * Tree Item Wrapper
+   *
+   * Wraps a tree item with context menu and interactive behavior. Provides a consistent
+   * interface for file and folder actions including rename, delete, and create operations.
+   *
+   * @component
+   * @param {TreeItemWrapperProps} props - Component props
+   * @returns {JSX.Element} Interactive button with context menu wrapper
+   *
+   * @example
+   * <TreeItemWrapper
+   *   item={fileDoc}
+   *   level={1}
+   *   isActive={selectedId === fileDoc._id}
+   *   onClick={() => handleSelect(fileDoc._id)}
+   *   onRename={() => setRenaming(true)}
+   *   onDelete={() => handleDelete(fileDoc._id)}
+   * >
+   *   <FileIcon fileName={fileDoc.name} />
+   *   <span>{fileDoc.name}</span>
+   * </TreeItemWrapper>
+   *
+   * @remarks
+   * Features:
+   * - Right-click context menu with actions (rename, delete, create)
+   * - Keyboard shortcut: Enter to rename
+   * - Dynamic padding based on tree level and item type
+   * - Visual feedback on hover and active states
+   * - Folders show additional "New File/Folder" options in context menu
+   *
+   * Keyboard Shortcuts:
+   * - `Enter` - Initiate rename
+   * - `⌘Backspace` - Delete item
+   */
 }) => {
   return (
     <ContextMenu>

@@ -39,40 +39,40 @@ export const RenameInput = ({
   level: number;
   onSubmit: (name: string) => void;
   onCancel: () => void;
-/**
- * Rename Input
- *
- * An inline input for renaming files and folders with intelligent text selection.
- * For files, selects the name without extension. For folders, selects the entire name.
- *
- * @component
- * @param {RenameInputProps} props - Component props
- * @returns {JSX.Element} Inline input with file/folder icon
- *
- * @example
- * <RenameInput
- *   type="file"
- *   defaultValue="script.ts"
- *   level={1}
- *   onSubmit={(name) => handleRename(fileId, name)}
- *   onCancel={() => setRenaming(false)}
- * />
- *
- * @remarks
- * Features:
- * - Auto-focus on mount
- * - Smart text selection (excludes file extension for files)
- * - Enter to submit, Escape to cancel
- * - Blur triggers submit (trims whitespace, falls back to default)
- * - Dynamic icon updates based on input value
- * - Matches tree indentation with dynamic padding
- *
- * Behavior:
- * - **Files**: Selects name portion only (e.g., "script" in "script.ts")
- * - **Folders**: Selects entire name
- * - Empty input reverts to original name
- * - Whitespace is automatically trimmed
- */
+  /**
+   * Rename Input
+   *
+   * An inline input for renaming files and folders with intelligent text selection.
+   * For files, selects the name without extension. For folders, selects the entire name.
+   *
+   * @component
+   * @param {RenameInputProps} props - Component props
+   * @returns {JSX.Element} Inline input with file/folder icon
+   *
+   * @example
+   * <RenameInput
+   *   type="file"
+   *   defaultValue="script.ts"
+   *   level={1}
+   *   onSubmit={(name) => handleRename(fileId, name)}
+   *   onCancel={() => setRenaming(false)}
+   * />
+   *
+   * @remarks
+   * Features:
+   * - Auto-focus on mount
+   * - Smart text selection (excludes file extension for files)
+   * - Enter to submit, Escape to cancel
+   * - Blur triggers submit (trims whitespace, falls back to default)
+   * - Dynamic icon updates based on input value
+   * - Matches tree indentation with dynamic padding
+   *
+   * Behavior:
+   * - **Files**: Selects name portion only (e.g., "script" in "script.ts")
+   * - **Folders**: Selects entire name
+   * - Empty input reverts to original name
+   * - Whitespace is automatically trimmed
+   */
 }) => {
   const [value, setValue] = useState(defaultValue);
 
