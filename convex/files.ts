@@ -101,9 +101,9 @@ export const getFiles = query({
  * - Useful for file detail views or editors
  */
 export const getFile = query({
-  args: { fileId: v.id("files") },
+  args: { id: v.id("files") },
   handler: async (ctx, args) => {
-    const file = await ctx.db.get("files", args.fileId);
+    const file = await ctx.db.get("files", args.id);
 
     if (!file) {
       throw new Error("File not found");
@@ -180,6 +180,87 @@ export const getFolderContents = query({
       //within each group, sort alphabetically
       return a.name.localeCompare(b.name);
     });
+  },
+});
+
+/**
+ * Get File Path Query
+ *
+ * Builds the full path to a file or folder by traversing up the parent chain
+ * from the target item to the root. Returns an ordered array of ancestor items
+ * that can be used to construct breadcrumb navigation.
+ *
+ * @query
+ * @param {Object} args - Query arguments
+ * @param {Id<"files">} args.id - The ID of the file or folder to get the path for
+ * @returns {Promise<Array<{_id: Id<"files">, name: string}>>} Ordered array from root to target
+ *
+ * @throws {Error} "Unauthorized" - If user is not authenticated
+ * @throws {Error} "File not found" - If the specified file doesn't exist
+ * @throws {Error} "Project not found" - If the file's project doesn't exist
+ * @throws {Error} "Unauthorized" - If user doesn't own the project
+ *
+ * @example
+ * // Get path for a nested file: src/components/button.tsx
+ * const path = await getFilePath({ id: buttonFileId });
+ * // Returns: [
+ * //   { _id: "src_id", name: "src" },
+ * //   { _id: "components_id", name: "components" },
+ * //   { _id: "button_id", name: "button.tsx" }
+ * // ]
+ *
+ * @example
+ * // Render as breadcrumbs
+ * path.map((item, i) => (
+ *   <span key={item._id}>
+ *     {i > 0 && " > "}
+ *     {item.name}
+ *   </span>
+ * ))
+ *
+ * @remarks
+ * - Traverses up the file tree via `parentId` references
+ * - Always includes the target file/folder as the last element
+ * - Root-level items return an array with a single element (themselves)
+ * - Path is ordered from root to target (left to right in breadcrumbs)
+ * - Useful for breadcrumb navigation, file path display, and contextual UI
+ */
+export const getFilePath = query({
+  args: {
+    id: v.id("files"),
+  },
+  handler: async (ctx, args) => {
+    const identity = await verifyAuth(ctx);
+
+    const file = await ctx.db.get("files", args.id);
+
+    if (!file) {
+      throw new Error("File not found");
+    }
+
+    const project = await ctx.db.get("projects", file.projectId);
+
+    if (!project) {
+      throw new Error("Project not found");
+    }
+
+    if (project.ownerId !== identity.subject) {
+      throw new Error("Unauthorized");
+    }
+
+    const path: { _id: Id<"files">; name: string }[] = [];
+    let currentId: Id<"files"> | undefined = args.id;
+
+    while (currentId) {
+      const file = (await ctx.db.get("files", currentId)) as
+        | Doc<"files">
+        | undefined;
+      if (!file) break;
+
+      path.unshift({ _id: file._id, name: file.name });
+      currentId = file.parentId;
+    }
+    return path;
   },
 });
 

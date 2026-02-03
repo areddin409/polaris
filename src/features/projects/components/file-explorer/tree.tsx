@@ -19,6 +19,7 @@ import { CreateInput } from "./create-input";
 import { TreeItemWrapper } from "./tree-item-wrapper";
 import { Doc, Id } from "../../../../../convex/_generated/dataModel";
 import { RenameInput } from "./rename-input";
+import { useEditor } from "@/features/editor/hooks/use-editor";
 
 /**
  * Tree Component
@@ -32,8 +33,6 @@ import { RenameInput } from "./rename-input";
  * @param {Doc<"files">} props.item - The file or folder document to render
  * @param {number} [props.level=0] - The nesting level of this item in the tree (0 for root level)
  * @param {Id<"projects">} props.projectId - The ID of the parent project
- * @param {Id<"files"> | undefined} props.selectedFolderId - The ID of the currently selected folder
- * @param {Function} props.setSelectedFolderId - Function to update the selected folder ID
  * @param {"file" | "folder" | null} props.creating - The type of item being created by parent component
  * @param {Id<"files"> | undefined} props.creatingInFolderId - The folder ID where parent is creating a new item
  * @param {Function} props.onCreateComplete - Callback when parent creation is completed
@@ -47,8 +46,6 @@ import { RenameInput } from "./rename-input";
  *   item={fileOrFolder}
  *   level={0}
  *   projectId={projectId}
- *   selectedFolderId={selectedId}
- *   setSelectedFolderId={setSelectedId}
  *   creating={null}
  *   creatingInFolderId={undefined}
  *   onCreateComplete={handleCreate}
@@ -67,8 +64,6 @@ export const Tree = ({
   item,
   level = 0,
   projectId,
-  selectedFolderId,
-  setSelectedFolderId,
   creating: parentCreating,
   creatingInFolderId,
   onCreateComplete,
@@ -77,8 +72,6 @@ export const Tree = ({
   item: Doc<"files">;
   level?: number;
   projectId: Id<"projects">;
-  selectedFolderId: Id<"files"> | undefined;
-  setSelectedFolderId: (id: Id<"files"> | undefined) => void;
   creating: "file" | "folder" | null;
   creatingInFolderId: Id<"files"> | undefined;
   onCreateComplete: (name: string) => void;
@@ -92,6 +85,7 @@ export const Tree = ({
   const deleteFile = useDeleteFile();
   const createFile = useCreateFile();
   const createFolder = useCreateFolder();
+  const { openFile, closeTab, activeTabId } = useEditor(projectId);
 
   const folderContents = useFolderContents({
     projectId,
@@ -151,6 +145,7 @@ export const Tree = ({
   // Render file items
   if (item.type === "file") {
     const fileName = item.name;
+    const isActive = activeTabId === item._id;
 
     if (isRenaming) {
       return (
@@ -168,12 +163,12 @@ export const Tree = ({
       <TreeItemWrapper
         item={item}
         level={level}
-        isActive={false}
-        onClick={() => {}}
-        onDoubleClick={() => {}}
+        isActive={isActive}
+        onClick={() => openFile(item._id, { pinned: false })}
+        onDoubleClick={() => openFile(item._id, { pinned: true })}
         onRename={() => setIsRenaming(true)}
         onDelete={() => {
-          //TODO close tab
+          closeTab(item._id);
           deleteFile({ id: item._id });
         }}
       >
@@ -226,8 +221,6 @@ export const Tree = ({
                 item={subItem}
                 level={level + 1}
                 projectId={projectId}
-                selectedFolderId={selectedFolderId}
-                setSelectedFolderId={setSelectedFolderId}
                 creating={parentCreating}
                 creatingInFolderId={creatingInFolderId}
                 onCreateComplete={onCreateComplete}
@@ -261,8 +254,6 @@ export const Tree = ({
                 item={subItem}
                 level={level + 1}
                 projectId={projectId}
-                selectedFolderId={selectedFolderId}
-                setSelectedFolderId={setSelectedFolderId}
                 creating={parentCreating}
                 creatingInFolderId={creatingInFolderId}
                 onCreateComplete={onCreateComplete}
@@ -281,12 +272,8 @@ export const Tree = ({
       <TreeItemWrapper
         item={item}
         level={level}
-        isActive={selectedFolderId === item._id}
-        onClick={() => {
-          setSelectedFolderId(item._id);
-          setIsOpen((prev) => !prev);
-        }}
-        onDoubleClick={() => {}}
+        isActive={false}
+        onClick={() => setIsOpen((prev) => !prev)}
         onRename={() => setIsRenaming(true)}
         onDelete={() => {
           deleteFile({ id: item._id });
@@ -328,8 +315,6 @@ export const Tree = ({
                 item={subItem}
                 level={level + 1}
                 projectId={projectId}
-                selectedFolderId={selectedFolderId}
-                setSelectedFolderId={setSelectedFolderId}
                 creating={parentCreating}
                 creatingInFolderId={creatingInFolderId}
                 onCreateComplete={onCreateComplete}
