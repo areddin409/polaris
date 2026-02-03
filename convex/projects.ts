@@ -9,43 +9,10 @@
  */
 
 import { v } from "convex/values";
-import { mutation, query, QueryCtx, MutationCtx } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 import { verifyAuth } from "./auth";
-import { Id, Doc } from "./_generated/dataModel";
-
-/**
- * Verifies project ownership
- *
- * Common helper to authenticate the user and verify they own the specified project.
- * Used across project operations to ensure consistent authorization.
- *
- * @param {QueryCtx | MutationCtx} ctx - The Convex context
- * @param {Id<"projects">} projectId - The ID of the project to verify ownership for
- * @throws {Error} "Unauthorized" - If user is not authenticated
- * @throws {Error} "Project not found" - If project doesn't exist
- * @throws {Error} "Unauthorized" - If user doesn't own the project
- * @returns {Promise<{identity: any, project: Doc<"projects">}>} The authenticated identity and project
- *
- * @example
- * const { identity, project } = await verifyProjectOwnership(ctx, args.id);
- */
-async function verifyProjectOwnership(
-  ctx: QueryCtx | MutationCtx,
-  projectId: Id<"projects">
-): Promise<{ identity: any; project: Doc<"projects"> }> {
-  const identity = await verifyAuth(ctx);
-  const project = await ctx.db.get(projectId);
-
-  if (!project) {
-    throw new Error("Project not found");
-  }
-
-  if (project.ownerId !== identity.subject) {
-    throw new Error("Unauthorized");
-  }
-
-  return { identity, project };
-}
+import { verifyProjectOwnership } from "./utils";
+import { Id } from "./_generated/dataModel";
 
 /**
  * Create Project Mutation
