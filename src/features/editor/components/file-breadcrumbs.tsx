@@ -27,7 +27,7 @@ export const FileBreadcrumbs = ({
     return (
       <div className="bg-background border-b p-2 pl-4">
         <Breadcrumb>
-          <BreadcrumbList className="gap-0.5">
+          <BreadcrumbList className="gap-0.5 sm:gap-0.5">
             <BreadcrumbItem className="text-sm">
               <BreadcrumbPage>&nbsp;</BreadcrumbPage>
             </BreadcrumbItem>
@@ -40,7 +40,7 @@ export const FileBreadcrumbs = ({
   return (
     <div className="bg-background border-b p-2 pl-4">
       <Breadcrumb>
-        <BreadcrumbList className="gap-0.5">
+        <BreadcrumbList className="gap-0.5 sm:gap-0.5">
           {filePath.map((item, index) => {
             const isLast = index === filePath.length - 1;
 

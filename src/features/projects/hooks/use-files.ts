@@ -16,14 +16,21 @@ export const useCreateFile = () => {
 
 export const useCreateFolder = () => {
   return useMutation(api.files.createFolder);
+  //TODO: add optimistic mutation
 };
 
 export const useRenameFile = () => {
   return useMutation(api.files.renameFile);
+  //TODO: add optimistic mutation
 };
 
 export const useDeleteFile = () => {
   return useMutation(api.files.deleteFile);
+  //TODO: add optimistic mutation
+};
+
+export const useUpdateFile = () => {
+  return useMutation(api.files.updateFile);
 };
 
 export const useFolderContents = ({
