@@ -1,3 +1,13 @@
+/**
+ * Unauthenticated View Component
+ *
+ * A full-screen view displayed to users who are not authenticated or
+ * unauthorized to access a resource. Provides a clear message and
+ * sign-in button to proceed.
+ *
+ * @module features/auth/components/unauthenticated-view
+ */
+
 import { ShieldAlertIcon } from "lucide-react";
 
 import {
@@ -11,6 +21,41 @@ import {
 import { SignInButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 
+/**
+ * Unauthenticated View
+ *
+ * Displays an unauthorized access message with a sign-in button.
+ * Shown when users attempt to access protected resources without authentication.
+ *
+ * @component
+ * @returns {JSX.Element} Full-screen unauthorized message with sign-in action
+ *
+ * @example
+ * // In a protected route or component
+ * function ProtectedPage() {
+ *   const { userId } = useAuth();
+ *
+ *   if (!userId) {
+ *     return <UnauthenticatedView />;
+ *   }
+ *
+ *   return <ProtectedContent />;
+ * }
+ *
+ * @remarks
+ * Features:
+ * - Full-screen centered layout
+ * - Shield alert icon for visual clarity
+ * - Clear "Unauthorized Access" message
+ * - Clerk SignInButton integration
+ * - Responsive card-based design
+ *
+ * Use Cases:
+ * - Protected routes without authentication
+ * - Insufficient permissions for resource access
+ * - Session expiration requiring re-authentication
+ * - Authorization failures
+ */
 export const UnauthenticatedView = () => {
   return (
     <div className="bg-background flex h-screen items-center justify-center">

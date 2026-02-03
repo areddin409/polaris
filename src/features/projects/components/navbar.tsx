@@ -1,3 +1,12 @@
+/**
+ * Navbar Component
+ *
+ * The top navigation bar for project pages. Displays project breadcrumbs,
+ * inline rename functionality, save status, and user account controls.
+ *
+ * @module features/projects/components/navbar
+ */
+
 import { useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -30,6 +39,48 @@ const font = Poppins({
   weight: ["400", "500", "600", "700"],
 });
 
+/**
+ * Props for Navbar component
+ *
+ * @interface NavbarProps
+ * @property {Id<"projects">} projectId - The unique identifier of the current project
+ */
+
+/**
+ * Navbar
+ *
+ * Top navigation bar for project pages with breadcrumb navigation, inline project rename,
+ * save status indicator, and user account button.
+ *
+ * @component
+ * @param {NavbarProps} props - Component props
+ * @returns {JSX.Element} Navigation bar with breadcrumbs and user controls
+ *
+ * @example
+ * <Navbar projectId="k1234567890abcdef" />
+ *
+ * @remarks
+ * Features:
+ * - Breadcrumb navigation: Home (Polaris logo) → Project name
+ * - Click project name to enter rename mode
+ * - Inline rename with input field (Enter to save, Escape to cancel)
+ * - Real-time save status with last saved time
+ * - Visual indicator for import operations in progress
+ * - User account button for authentication
+ *
+ * Rename Behavior:
+ * - Click on project name to activate rename mode
+ * - Input auto-selects text for quick editing
+ * - Enter key submits the rename
+ * - Escape key cancels (using renameCanceledRef to prevent submission)
+ * - Blur also submits unless cancelled
+ * - Empty/whitespace names are rejected
+ * - No change if new name matches current name
+ *
+ * Status Indicators:
+ * - **Importing**: Animated spinner with "Importing project..." tooltip
+ * - **Saved**: Cloud check icon with relative time ("Saved 2 minutes ago")
+ */
 const Navbar = ({ projectId }: { projectId: Id<"projects"> }) => {
   const project = useProject(projectId);
   const renameProject = useRenameProject();
@@ -38,6 +89,10 @@ const Navbar = ({ projectId }: { projectId: Id<"projects"> }) => {
   const [name, setName] = useState("");
   const renameCanceledRef = useRef(false);
 
+  /**
+   * Start rename mode
+   * Sets the input value to current project name and activates rename mode
+   */
   const handleStartRename = () => {
     if (!project) return;
     setName(project.name);
@@ -45,6 +100,10 @@ const Navbar = ({ projectId }: { projectId: Id<"projects"> }) => {
     renameCanceledRef.current = false; // Reset cancel flag when starting rename
   };
 
+  /**
+   * Submit the rename
+   * Checks if rename was cancelled, validates the new name, and submits if valid
+   */
   const handleSubmit = () => {
     // Check if rename was canceled (e.g., by Escape key)
     if (renameCanceledRef.current) {
@@ -60,6 +119,11 @@ const Navbar = ({ projectId }: { projectId: Id<"projects"> }) => {
     renameProject({ id: projectId, name: trimmedName });
   };
 
+  /**
+   * Handle keyboard shortcuts
+   * Enter: submit rename
+   * Escape: cancel rename (sets cancel flag to prevent blur submission)
+   */
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       handleSubmit();
