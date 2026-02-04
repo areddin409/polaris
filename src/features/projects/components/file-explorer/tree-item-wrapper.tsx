@@ -108,7 +108,7 @@ export const TreeItemWrapper = ({
             }
           }}
           className={cn(
-            "group hover:bg-accent/30 focus:ring-ring flex h-5.5 w-full items-center gap-1 outline-none focus:ring-1 focus:ring-inset",
+            "group hover:bg-accent/30 focus:ring-ring flex h-5.5 w-full items-center gap-1 outline-none focus:ring-inset",
             isActive && "bg-accent/30"
           )}
           style={{ paddingLeft: getItemPadding(level, item.type === "file") }}

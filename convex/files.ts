@@ -9,95 +9,13 @@
  */
 
 import { v } from "convex/values";
-import {
-  mutation,
-  query,
-  internalMutation,
-  QueryCtx,
-  MutationCtx,
-} from "./_generated/server";
+import { mutation, query, internalMutation } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { verifyAuth } from "./auth";
+import { validateName, verifyProjectOwnership } from "./utils";
 import { Id, Doc } from "./_generated/dataModel";
 
 /**
- * Validates a file or folder name
- *
- * Ensures the name meets all requirements for safe filesystem operations:
- * - Not empty or whitespace-only
- * - Maximum length of 255 characters
- * - No path separators (/, \)
- * - No special characters that could cause issues (< > : " | ? *)
- * - No control characters (\x00-\x1f)
- *
- * @param {string} name - The name to validate
- * @throws {Error} Descriptive error message if validation fails
- * @returns {string} The trimmed, validated name
- *
- * @example
- * const validName = validateName("  my-file.txt  "); // Returns "my-file.txt"
- * validateName(""); // Throws: Name cannot be empty
- * validateName("my/file.txt"); // Throws: Name cannot contain path separators
- */
-function validateName(name: string): string {
-  // Trim whitespace
-  const trimmed = name.trim();
-
-  // Check for empty or whitespace-only
-  if (!trimmed || trimmed.length === 0) {
-    throw new Error("Name cannot be empty or contain only whitespace");
-  }
-
-  // Check max length
-  if (trimmed.length > 255) {
-    throw new Error("Name cannot exceed 255 characters");
-  }
-
-  // Check for path separators
-  if (trimmed.includes("/") || trimmed.includes("\\")) {
-    throw new Error("Name cannot contain path separators (/ or \\)");
-  }
-
-  // Check for invalid characters: < > : " | ? *
-  const invalidChars = /[<>:"|?*]/;
-  if (invalidChars.test(trimmed)) {
-    throw new Error('Name cannot contain special characters: < > : " | ? *');
-  }
-
-  // Check for control characters (\x00-\x1f)
-  const controlChars = /[\x00-\x1f]/;
-  if (controlChars.test(trimmed)) {
-    throw new Error("Name cannot contain control characters");
-  }
-
-  return trimmed;
-}
-
-/**
- * Verifies project ownership
- *
- * Common helper to authenticate the user and verify they own the specified project.
- * Used across all file/folder operations to ensure consistent authorization.
- *
- * @param {QueryCtx | MutationCtx} ctx - The Convex context
- * @param {Id<"projects">} projectId - The ID of the project to verify ownership for
- * @throws {Error} "Unauthorized" - If user is not authenticated
- * @throws {Error} "Project not found" - If project doesn't exist
- * @throws {Error} "Unauthorized" - If user doesn't own the project
- * @returns {Promise<{identity: any, project: Doc<"projects">}>} The authenticated identity and project
- *
- * @example
- * const { identity, project } = await verifyProjectOwnership(ctx, args.projectId);
- */
-async function verifyProjectOwnership(
-  ctx: QueryCtx | MutationCtx,
-  projectId: Id<"projects">
-): Promise<{ identity: any; project: Doc<"projects"> }> {
-  const identity = await verifyAuth(ctx);
-  const project = await ctx.db.get(projectId);
-
-  if (!project) {
-    throw new Error("Project not found");
   }
 
   if (project.ownerId !== identity.subject) {
@@ -183,9 +101,9 @@ export const getFiles = query({
  * - Useful for file detail views or editors
  */
 export const getFile = query({
-  args: { fileId: v.id("files") },
+  args: { id: v.id("files") },
   handler: async (ctx, args) => {
-    const file = await ctx.db.get("files", args.fileId);
+    const file = await ctx.db.get("files", args.id);
 
     if (!file) {
       throw new Error("File not found");
@@ -262,6 +180,87 @@ export const getFolderContents = query({
       //within each group, sort alphabetically
       return a.name.localeCompare(b.name);
     });
+  },
+});
+
+/**
+ * Get File Path Query
+ *
+ * Builds the full path to a file or folder by traversing up the parent chain
+ * from the target item to the root. Returns an ordered array of ancestor items
+ * that can be used to construct breadcrumb navigation.
+ *
+ * @query
+ * @param {Object} args - Query arguments
+ * @param {Id<"files">} args.id - The ID of the file or folder to get the path for
+ * @returns {Promise<Array<{_id: Id<"files">, name: string}>>} Ordered array from root to target
+ *
+ * @throws {Error} "Unauthorized" - If user is not authenticated
+ * @throws {Error} "File not found" - If the specified file doesn't exist
+ * @throws {Error} "Project not found" - If the file's project doesn't exist
+ * @throws {Error} "Unauthorized" - If user doesn't own the project
+ *
+ * @example
+ * // Get path for a nested file: src/components/button.tsx
+ * const path = await getFilePath({ id: buttonFileId });
+ * // Returns: [
+ * //   { _id: "src_id", name: "src" },
+ * //   { _id: "components_id", name: "components" },
+ * //   { _id: "button_id", name: "button.tsx" }
+ * // ]
+ *
+ * @example
+ * // Render as breadcrumbs
+ * path.map((item, i) => (
+ *   <span key={item._id}>
+ *     {i > 0 && " > "}
+ *     {item.name}
+ *   </span>
+ * ))
+ *
+ * @remarks
+ * - Traverses up the file tree via `parentId` references
+ * - Always includes the target file/folder as the last element
+ * - Root-level items return an array with a single element (themselves)
+ * - Path is ordered from root to target (left to right in breadcrumbs)
+ * - Useful for breadcrumb navigation, file path display, and contextual UI
+ */
+export const getFilePath = query({
+  args: {
+    id: v.id("files"),
+  },
+  handler: async (ctx, args) => {
+    const identity = await verifyAuth(ctx);
+
+    const file = await ctx.db.get("files", args.id);
+
+    if (!file) {
+      throw new Error("File not found");
+    }
+
+    const project = await ctx.db.get("projects", file.projectId);
+
+    if (!project) {
+      throw new Error("Project not found");
+    }
+
+    if (project.ownerId !== identity.subject) {
+      throw new Error("Unauthorized");
+    }
+
+    const path: { _id: Id<"files">; name: string }[] = [];
+    let currentId: Id<"files"> | undefined = args.id;
+
+    while (currentId) {
+      const file = (await ctx.db.get("files", currentId)) as
+        | Doc<"files">
+        | undefined;
+      if (!file) break;
+
+      path.unshift({ _id: file._id, name: file.name });
+      currentId = file.parentId;
+    }
+    return path;
   },
 });
 

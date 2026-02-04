@@ -57,16 +57,12 @@ import { Tree } from "./tree";
  * - `isOpen`: Controls whether the entire tree is expanded or collapsed
  * - `collapseKey`: Forces re-render to collapse all folders when incremented
  * - `creating`: Tracks what type of item is being created ("file" | "folder" | null)
- * - `selectedFolderId`: ID of the currently selected folder
  * - `creatingInFolderId`: ID of the folder where a new item is being created
  */
 export const FileExplorer = ({ projectId }: { projectId: Id<"projects"> }) => {
   const [isOpen, setIsOpen] = useState(true);
   const [collapseKey, setCollapseKey] = useState(0);
   const [creating, setCreating] = useState<"file" | "folder" | null>(null);
-  const [selectedFolderId, setSelectedFolderId] = useState<
-    Id<"files"> | undefined
-  >(undefined);
   const [creatingInFolderId, setCreatingInFolderId] = useState<
     Id<"files"> | undefined
   >(undefined);
@@ -89,6 +85,7 @@ export const FileExplorer = ({ projectId }: { projectId: Id<"projects"> }) => {
    * - Resets creation state after completion
    */
   const handleCreate = (name: string) => {
+    const parentId = creatingInFolderId;
     setCreating(null);
     setCreatingInFolderId(undefined);
 
@@ -97,13 +94,13 @@ export const FileExplorer = ({ projectId }: { projectId: Id<"projects"> }) => {
         projectId,
         name,
         content: "",
-        parentId: selectedFolderId,
+        parentId,
       });
     } else {
       createFolder({
         projectId,
         name,
-        parentId: selectedFolderId,
+        parentId,
       });
     }
   };
@@ -136,7 +133,7 @@ export const FileExplorer = ({ projectId }: { projectId: Id<"projects"> }) => {
                 e.preventDefault();
                 setIsOpen(true);
                 setCreating("file");
-                setCreatingInFolderId(selectedFolderId);
+                setCreatingInFolderId(undefined);
               }}
               variant="highlight"
               size="icon-xs"
@@ -151,7 +148,7 @@ export const FileExplorer = ({ projectId }: { projectId: Id<"projects"> }) => {
                 e.preventDefault();
                 setIsOpen(true);
                 setCreating("folder");
-                setCreatingInFolderId(selectedFolderId);
+                setCreatingInFolderId(undefined);
               }}
               variant="highlight"
               size="icon-xs"
@@ -197,8 +194,6 @@ export const FileExplorer = ({ projectId }: { projectId: Id<"projects"> }) => {
                 item={item}
                 level={0}
                 projectId={projectId}
-                selectedFolderId={selectedFolderId}
-                setSelectedFolderId={setSelectedFolderId}
                 creating={creating}
                 creatingInFolderId={creatingInFolderId}
                 onCreateComplete={handleCreate}
