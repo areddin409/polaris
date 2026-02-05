@@ -17,6 +17,12 @@ export const suggestionRequestSchema = z.object({
   lineNumber: z.number(),
 });
 
+export const editRequestSchema = z.object({
+  selectedCode: z.string(),
+  fullCode: z.string().optional(),
+  instruction: z.string(),
+});
+
 /**
  * Zod schema for AI suggestion responses.
  *
@@ -26,5 +32,11 @@ export const suggestionResponseSchema = z.object({
   suggestion: z.string(),
 });
 
+export const editResponseSchema = z.object({
+  editedCode: z.string(),
+});
+
 export type SuggestionRequest = z.infer<typeof suggestionRequestSchema>;
 export type SuggestionResponse = z.infer<typeof suggestionResponseSchema>;
+export type EditRequest = z.infer<typeof editRequestSchema>;
+export type EditResponse = z.infer<typeof editResponseSchema>;
