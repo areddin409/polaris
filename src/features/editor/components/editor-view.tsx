@@ -17,15 +17,25 @@ export const EditorView = ({ projectId }: { projectId: Id<"projects"> }) => {
 
   useEffect(() => {
     return () => {
-      if (timeoutRef.current !== null) {
+      if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
     };
-  }, []);
+  }, [activeTabId]);
 
   const isActiveFileBinary = activeFile && activeFile.storageId;
   const isActiveFileText = activeFile && !activeFile.storageId;
 
+  const debouncedUpdateFile = (content: string) => {
+    if (!activeFile) return;
+    if (timeoutRef.current !== null) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    timeoutRef.current = window.setTimeout(() => {
+      updateFile({ id: activeFile._id, content });
+    }, DEBOUNCE_MS);
+  };
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center">
@@ -50,15 +60,7 @@ export const EditorView = ({ projectId }: { projectId: Id<"projects"> }) => {
             key={activeFile._id}
             fileName={activeFile.name}
             initialValue={activeFile.content}
-            onChange={(content: string) => {
-              if (timeoutRef.current !== null) {
-                clearTimeout(timeoutRef.current);
-              }
-
-              timeoutRef.current = window.setTimeout(() => {
-                updateFile({ id: activeFile._id, content });
-              }, DEBOUNCE_MS);
-            }}
+            onChange={debouncedUpdateFile}
           />
         )}
 
