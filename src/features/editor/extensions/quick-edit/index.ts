@@ -114,7 +114,7 @@ const createQuickEditTooltip = (state: EditorState): readonly Tooltip[] => {
           "bg-transparent border-none outline-none px-2 py-1 font-sans w-100";
         input.autofocus = true;
 
-        const buttonContainer = document.createElement("button");
+        const buttonContainer = document.createElement("div");
         buttonContainer.className = "flex items-center justify-between gap-2";
 
         // Cancel button: aborts request and closes tooltip

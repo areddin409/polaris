@@ -91,6 +91,23 @@ export async function POST(request: Request) {
       prompt,
     });
 
+    // Defensive checks for AI response
+    if (!output) {
+      console.error("AI response missing output");
+      return NextResponse.json(
+        { error: "AI failed to generate a valid response" },
+        { status: 500 }
+      );
+    }
+
+    if (output.suggestion === undefined || output.suggestion === null) {
+      console.error("AI response missing suggestion field");
+      return NextResponse.json(
+        { error: "AI response incomplete" },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({ suggestion: output.suggestion });
   } catch (error) {
     console.error("Error generating suggestion:", error);

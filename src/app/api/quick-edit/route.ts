@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 import { generateText, Output } from "ai";
 
 import { firecrawl } from "@/lib/firecrawl";
+import { editRequestSchema } from "@/lib/schemas/suggestion";
 
 /**
  * Zod schema for the quick edit response.
@@ -128,26 +129,22 @@ interface QuickEditRequest {
 export async function POST(request: Request): Promise<NextResponse> {
   try {
     const { userId } = await auth();
-    const { selectedCode, fullCode, instruction } =
-      (await request.json()) as QuickEditRequest;
 
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    if (!selectedCode) {
+    // Validate request body using Zod schema
+    const parseResult = editRequestSchema.safeParse(await request.json());
+
+    if (!parseResult.success) {
       return NextResponse.json(
-        { error: "Selected code is required" },
+        { error: "Invalid request", details: parseResult.error.format() },
         { status: 400 }
       );
     }
 
-    if (!instruction) {
-      return NextResponse.json(
-        { error: "Instruction is required" },
-        { status: 400 }
-      );
-    }
+    const { selectedCode, fullCode, instruction } = parseResult.data;
 
     // Extract URLs from instruction and scrape documentation if present
     const urls: string[] = instruction.match(URL_REGEX) || [];
