@@ -87,8 +87,26 @@ export const ConversationSidebar = ({
 
     let conversationId = activeConversationId;
 
+    // Create conversation if it doesn't exist
     if (!conversationId) {
       conversationId = await handleCreateConversation();
+      if (!conversationId) {
+        return;
+      }
+    }
+
+    // trigger Inngest Function via API
+    try {
+      await ky.post("/api/messages", {
+        json: {
+          conversationId,
+          message: message.text,
+        },
+      });
+    } catch (error) {
+      toast.error("Failed to send message. Please try again.");
+    } finally {
+      setInput("");
     }
   };
 
