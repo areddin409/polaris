@@ -20,7 +20,7 @@ import { getItemPadding } from "./constants";
  * @property {"file" | "folder"} type - The type of item being created
  * @property {number} level - Nesting level in the tree for proper indentation
  * @property {(name: string) => void} onSubmit - Callback when creation is submitted with the new name
- * @property {() => void} onCancel - Callback when creation is cancelled
+ * @property {() => void} onCancel - Callback when creation is canceled
  */
 
 /**

@@ -73,7 +73,7 @@ const font = Poppins({
  * - Input auto-selects text for quick editing
  * - Enter key submits the rename
  * - Escape key cancels (using renameCanceledRef to prevent submission)
- * - Blur also submits unless cancelled
+ * - Blur also submits unless canceled
  * - Empty/whitespace names are rejected
  * - No change if new name matches current name
  *
@@ -102,7 +102,7 @@ const Navbar = ({ projectId }: { projectId: Id<"projects"> }) => {
 
   /**
    * Submit the rename
-   * Checks if rename was cancelled, validates the new name, and submits if valid
+   * Checks if rename was canceled, validates the new name, and submits if valid
    */
   const handleSubmit = () => {
     // Check if rename was canceled (e.g., by Escape key)

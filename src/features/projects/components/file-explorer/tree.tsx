@@ -36,7 +36,7 @@ import { useEditor } from "@/features/editor/hooks/use-editor";
  * @param {"file" | "folder" | null} props.creating - The type of item being created by parent component
  * @param {Id<"files"> | undefined} props.creatingInFolderId - The folder ID where parent is creating a new item
  * @param {Function} props.onCreateComplete - Callback when parent creation is completed
- * @param {Function} props.onCreateCancel - Callback when parent creation is cancelled
+ * @param {Function} props.onCreateCancel - Callback when parent creation is canceled
  *
  * @returns {JSX.Element} Rendered tree node
  *

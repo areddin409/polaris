@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils";
  * @property {boolean} [isOpen] - Whether the folder is expanded (folders only)
  * @property {number} level - Nesting level in the tree for proper indentation
  * @property {(name: string) => void} onSubmit - Callback when rename is submitted
- * @property {() => void} onCancel - Callback when rename is cancelled
+ * @property {() => void} onCancel - Callback when rename is canceled
  */
 export const RenameInput = ({
   type,
