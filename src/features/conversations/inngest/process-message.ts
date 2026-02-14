@@ -41,6 +41,12 @@ import {
 } from "./constants";
 import { createReadFilesTool } from "@/inngest/tools/read-files";
 import { createListFilesTool } from "@/inngest/tools/list-files";
+import { createUpdateFilesTool } from "@/inngest/tools/update-file";
+import { createFilesTool } from "@/inngest/tools/create-files";
+import { createFolderTool } from "@/inngest/tools/create-folder";
+import { createRenameFileTool } from "@/inngest/tools/rename-file";
+import { createDeleteFilesTool } from "@/inngest/tools/delete-files";
+import { createScrapeUrlsTool } from "@/inngest/tools/scrape-urls";
 
 /**
  * Event payload structure for message processing.
@@ -265,6 +271,12 @@ export const processMessage = inngest.createFunction(
       tools: [
         createReadFilesTool({ internalKey }),
         createListFilesTool({ internalKey, projectId }),
+        createUpdateFilesTool({ internalKey }),
+        createFilesTool({ internalKey, projectId }),
+        createFolderTool({ internalKey, projectId }),
+        createRenameFileTool({ internalKey }),
+        createDeleteFilesTool({ internalKey }),
+        createScrapeUrlsTool(),
       ],
     });
 
