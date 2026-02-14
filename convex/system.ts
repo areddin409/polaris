@@ -111,6 +111,47 @@ export const getConversationById = query({
 });
 
 /**
+ * Get Project By ID (Internal)
+ *
+ * Retrieves a project document by its ID. This is an internal
+ * API that bypasses user authentication checks, intended for server-side
+ * operations that need unrestricted access to project data.
+ *
+ * @internal
+ * @security Requires valid internal key
+ *
+ * @param args - Query arguments
+ * @returns The project document or null if not found
+ *
+ * @throws {Error} "Unauthorized" if internal key is invalid
+ * @throws {Error} "Internal Key not configured" if environment variable not set
+ *
+ * @example
+ * ```typescript
+ * // From API route for authorization checks
+ * const project = await convex.query(api.system.getProjectById, {
+ *   projectId: "proj_123",
+ *   internalKey: process.env.POLARIS_CONVEX_INTERNAL_KEY!
+ * });
+ *
+ * if (!project || project.ownerId !== userId) {
+ *   return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+ * }
+ * ```
+ */
+export const getProjectById = query({
+  args: {
+    projectId: v.id("projects"),
+    internalKey: v.string(),
+  },
+  handler: async (ctx, { projectId, internalKey }) => {
+    validateInternalKey(internalKey);
+
+    return await ctx.db.get("projects", projectId);
+  },
+});
+
+/**
  * Create Message (Internal)
  *
  * Creates a new message in a conversation and updates the conversation's

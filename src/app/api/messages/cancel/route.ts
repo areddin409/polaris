@@ -30,7 +30,21 @@ export async function POST(request: Request) {
     );
   }
 
-  //find all processing messages for the project
+  // Verify project ownership before allowing cancellation
+  const project = await convex.query(api.system.getProjectById, {
+    projectId: projectId as Id<"projects">,
+    internalKey,
+  });
+
+  if (!project) {
+    return NextResponse.json({ error: "Project not found" }, { status: 404 });
+  }
+
+  if (project.ownerId !== userId) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  // Find all processing messages for the project
   const processingMessages = await convex.query(
     api.system.getProcessingMessages,
     {
